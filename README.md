@@ -1,2 +1,2 @@
 # Lasagna-Box
-Command Line Digital Signal Processor
+Digital Signal Processor from the Command Line.

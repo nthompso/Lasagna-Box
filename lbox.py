@@ -20,11 +20,13 @@ class Prompt(Cmd):
         plt.imshow(self.img)
         plt.ion()
         plt.show()
+        self.refresh()
 
     def refresh(self):
         plt.clf()
         plt.imshow(self.img)
         plt.draw()
+        plt.pause(0.0001)
 
     def do_exit(self, inp):
         print("Exiting...")

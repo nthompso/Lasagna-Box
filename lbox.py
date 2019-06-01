@@ -7,7 +7,7 @@ import numpy as np
 import scipy
 import scipy.ndimage
 
-from parser import gen_parser
+from cmd_parser import gen_parser
 from zoom import clipped_zoom
 
 class Prompt(Cmd):

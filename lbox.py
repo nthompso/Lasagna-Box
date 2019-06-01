@@ -17,6 +17,7 @@ class Prompt(Cmd):
         super(Prompt, self).__init__()
         self.filename = image_filename
         self.img = mpimg.imread(image_filename)
+        self.row,self.col,self.ch = self.img.shape
         plt.imshow(self.img)
         plt.ion()
         plt.show()
@@ -76,6 +77,32 @@ class Prompt(Cmd):
 
     def zoom(self, factor : float):
         self.img = clipped_zoom(self.img, factor)
+        self.refresh()
+
+    def imfilter(self, filt : str):
+        filt = filt.upper()
+        supported = True
+        if filt == "GAUSSIAN":
+            filt_func = lambda x: scipy.ndimage.gaussian_filter(x, sigma=3) 
+        elif filt == "MEDIAN":
+            filt_func = lambda x: scipy.ndimage.median_filter(x, size=(3,3))
+        else:
+            print("Filter type not supported")
+            return    
+        for idx in range(self.channel): #only works for rgb?
+            self.img[:,:,idx] = filt_func(self.img[:,:,idx])
+        self.refresh()
+    
+    def noisy(self, noise: str):
+        noise = noise.upper()
+        if noise == "GAUSSIAN":
+            noise = np.random.normal(0,.1,(self.row,self.col,self.ch))
+        elif noise == "S&P":
+            pass
+        else:
+            print("Noise type not supported")
+            return
+        self.img[:,:,:2] = self.img[:,:,:2] + noise[:,:,:2]
         self.refresh()
 
     #############################################

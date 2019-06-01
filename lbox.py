@@ -89,14 +89,14 @@ class Prompt(Cmd):
         else:
             print("Filter type not supported")
             return    
-        for idx in range(self.channel): #only works for rgb?
+        for idx in range(self.ch): #only works for rgb?
             self.img[:,:,idx] = filt_func(self.img[:,:,idx])
         self.refresh()
     
     def noisy(self, noise: str):
         noise = noise.upper()
         if noise == "GAUSSIAN":
-            noise = np.random.normal(0,.1,(self.row,self.col,self.ch))
+            noise = np.random.normal(0,.05,(self.row,self.col,self.ch))
         elif noise == "S&P":
             pass
         else:

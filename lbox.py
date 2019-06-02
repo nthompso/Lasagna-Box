@@ -97,12 +97,23 @@ class Prompt(Cmd):
         noise = noise.upper()
         if noise == "GAUSSIAN":
             noise = np.random.normal(0,.05,(self.row,self.col,self.ch))
+            temp = np.array(self.img[:,:,:2] + noise[:,:,:2])
+            temp[temp > 1] = 1
+            temp[temp < 0] = 0
+            self.img[:,:,:2] = temp
         elif noise == "S&P":
-            pass
+            svp = 0.5 #amount of salt vs. pepper
+            p_val = 0.02 #probability of salt or pepper
+            s_coords = [np.random.randint(0, i-1, int(p_val*self.row*self.col*self.ch*svp)) for i in (self.row,self.col,self.ch)]
+            p_coords = [np.random.randint(0, i-1, int(p_val*self.row*self.col*self.ch*svp)) for i in (self.row,self.col,self.ch)]
+            temp = self.img
+            temp[s_coords] = 1
+            temp[p_coords] = 0
+            self.img[:,:,:2] = temp[:,:,:2]
         else:
             print("Noise type not supported")
             return
-        self.img[:,:,:2] = self.img[:,:,:2] + noise[:,:,:2]
+        print('success')
         self.refresh()
 
     #############################################

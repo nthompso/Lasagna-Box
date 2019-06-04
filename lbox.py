@@ -75,8 +75,8 @@ class Prompt(Cmd):
         self.img = scipy.ndimage.rotate(self.img, degrees, reshape=False)
         self.refresh()
 
-    def zoom(self, factor : float):
-        self.img = clipped_zoom(self.img, factor)
+    def zoom(self, percent : float):
+        self.img = clipped_zoom(self.img, 1 + percent / 100)
         self.refresh()
 
     def imfilter(self, filt : str):

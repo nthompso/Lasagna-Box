@@ -6,6 +6,7 @@ import matplotlib.image as mpimg
 import numpy as np
 import scipy
 import scipy.ndimage
+import copy
 
 from cmd_parser import gen_parser
 from zoom import clipped_zoom
@@ -17,13 +18,20 @@ class Prompt(Cmd):
         super(Prompt, self).__init__()
         self.filename = image_filename
         self.img = mpimg.imread(image_filename)
+        self.img_array = [copy.copy(self.img)]
+        self.ver_idx = 0 #off by one for refresh
         self.row,self.col,self.ch = self.img.shape
         plt.imshow(self.img)
         plt.ion()
         plt.show()
-        self.refresh()
+        self.refresh(True)
 
-    def refresh(self):
+    def refresh(self, isIndex=False):
+        if not isIndex: 
+            while (len(self.img_array)>self.ver_idx+1):
+                self.img_array.pop()
+            self.img_array.append(copy.copy(self.img))
+            self.ver_idx += 1
         plt.clf()
         plt.imshow(self.img)
         plt.draw()
@@ -70,6 +78,21 @@ class Prompt(Cmd):
     #############################################
     ############## Functions Below ##############
     #############################################
+    def undo(self):
+        if self.ver_idx > 0:
+            self.ver_idx -= 1
+            self.img = copy.copy(self.img_array[self.ver_idx])
+            self.refresh(True)
+        else:
+            print("No more versions in history")
+
+    def redo(self):
+        if self.ver_idx+1 < len(self.img_array):
+            self.ver_idx += 1
+            self.img = copy.copy(self.img_array[self.ver_idx])
+            self.refresh(True)
+        else:
+            print("Most recent version in history")
 
     def rotate(self, degrees : float):
         self.img = scipy.ndimage.rotate(self.img, degrees, reshape=False)
@@ -79,13 +102,13 @@ class Prompt(Cmd):
         self.img = clipped_zoom(self.img, 1 + percent / 100)
         self.refresh()
 
-    def imfilter(self, filt : str):
+    def imfilter(self, filt : str, filt_size : int = 3):
         filt = filt.upper()
         supported = True
         if filt == "GAUSSIAN":
             filt_func = lambda x: scipy.ndimage.gaussian_filter(x, sigma=3) 
         elif filt == "MEDIAN":
-            filt_func = lambda x: scipy.ndimage.median_filter(x, size=(3,3))
+            filt_func = lambda x: scipy.ndimage.median_filter(x, size=(filt_size,filt_size))
         else:
             print("Filter type not supported")
             return    
